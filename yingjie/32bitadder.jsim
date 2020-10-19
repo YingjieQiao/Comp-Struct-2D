@@ -1,0 +1,48 @@
+* Qiao Yingjie 1004514
+
+.include "/Users/yingjieqiao/Desktop/term4/50002/nominal.jsim"
+.include "/Users/yingjieqiao/Desktop/term4/50002/stdcell.jsim"
+.include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_100ns.jsim"
+
+
+.subckt FA a b cin s co
+Xxor1 a b ab1 xor2
+Xxor2 ab1 cin s xor2
+Xand1 cin ab1 abc1 and2
+Xand2 a b ab2 and2
+Xor abc1 ab2 co or2
+.ends
+
+
+.subckt findV A[31:0] XB[31:0] s[31:0] v
+Xinv_a A[31] inv_a inverter_2
+Xinv_b XB[31] inv_b inverter_2
+Xinv_s s[31] inv_s inverter_2
+Xleft A[31] XB[31] inv_s output_left and3
+Xright inv_a inv_b s[31] output_right and3
+Xtotal output_left output_right v or2
+.ends
+
+
+.subckt findZ s[31:0] z
+Xnor_all s[7:0] s[15:8] s[23:16] s[31:24] P[7:0] nor4
+Xand2_8i P[7:4] P[3:0] K[3:0] and2
+Xand4_4i K[3] K[2] K[1] K[0] z and4
+.ends
+
+
+.subckt adder32 ALUFN[0] A[31:0] B[31:0] s[31:0] z v n
+Xxorgates B[31:0] ALUFN0#32 XB[31:0] xor2 
+Xfulladder_first A[0] XB[0] ALUFN[0] s[0] C[0] FA 
+Xfulladder_rest A[31:1] XB[31:1] c[30:0] s[31:1] c[31:1] FA 
+
+** returns z
+XfindZ s[31:0] z findZ 
+
+** returns V
+XfindV A[31:0] XB[31:0] s[31:0] v findV 
+
+** returns n
+.connect s[31] n 
+
+.ends
