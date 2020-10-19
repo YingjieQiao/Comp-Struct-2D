@@ -1,0 +1,16 @@
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "lab3checkoff_6.jsim"
+.include "ALU_boolean.jsim"
+.include "ALU_compare.jsim"
+.include "ALU_shifter.jsim"
+.include "ALU_ADDER.jsim"
+
+.subckt alu ALUFN[5:0] A[31:0] B[31:0] alu[31:0] z v n
+Xadder ALUFN[0] A[31:0] B[31:0] S[31:0] z v n adder32
+Xbool ALUFN[3:0] A[31:0] B[31:0] boole[31:0] boole32
+Xcmp ALUFN[2:1] z v n cmp[31:0] compare32
+Xshift ALUFN[1:0] A[31:0] B[4:0] shift[31:0] shift32
+Xmux ALUFN[5]#32 ALUFN[4]#32 S[31:0] shift[31:0] boole[31:0] cmp[31:0] alu[31:0] mux4 
+.ends
+

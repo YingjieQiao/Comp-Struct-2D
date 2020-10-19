@@ -1,0 +1,44 @@
+
+
+
+.subckt knex a b
+.connect a b
+.ends
+
+.subckt FA a b cin s co
+Xxor1 a b ab1 xor2
+Xxor2 ab1 cin s xor2
+Xand1 cin ab1 abc1 and2
+Xand2 a b ab2 and2
+Xor abc1 ab2 co or2
+.ends
+
+.subckt detectz A[31:0] z
+Xinv A[31:0] XA[31:0] inverter
+Xfirst8and4 XA[7:0] XA[15:8] XA[23:16] XA[31:24] Z1[7:0] and4
+Xsecond2and4 Z1[1:0] Z1[3:2] Z1[5:4] Z1[7:6] ZB[1:0] and4
+Xthird1and2 ZB0 ZB1 z and2
+.ends
+
+.subckt detectV XA XB S Z
+XinvS S Sinv inverter
+XinvXA XA XAinv inverter
+XinvXB XB XBinv inverter
+Xanda XA XB Sinv anda_out and3
+Xandb XAinv XBinv S andb_out and3
+Xor anda_out andb_out Z or2
+.ends
+
+.subckt adder32 ALUFN[0] A[31:0] B[31:0] S[31:0] z v n
+Xfa XA[31:0] XB[31:0] Cin[31:0] S[31:0] Cout[31:0] FA
+Xconnect1 Cin[31:1] Cout[30:0] knex
+.connect Cin0 ALUFN0
+Xconnect2 XA[31:0] A[31:0] knex
+Xxor B[31:0] ALUFN0#32 XB[31:0] xor2
+Xfindz S[31:0] z detectz
+.connect n S31
+Xfindv XA31 XB31 S31 v detectV
+.ends
+
+
+

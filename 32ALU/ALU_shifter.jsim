@@ -1,0 +1,35 @@
+
+
+.subckt SHL A[31:0] B[4:0] shift[31:0]
+Xmuxa B4#32 A[31:0] A[15:0] 0#16 W[31:0] mux2
+Xmuxb B3#32 W[31:0] W[23:0] 0#8 X[31:0] mux2
+Xmuxc B2#32 X[31:0] X[27:0] 0#4 Y[31:0] mux2
+Xmuxd B1#32 Y[31:0] Y[29:0] 0#2 Z[31:0] mux2
+Xmuxe B0#32 Z[31:0] Z[30:0] 0 shift[31:0] mux2
+.ends
+
+
+.subckt SHR A[31:0] B[4:0] shift[31:0]
+Xmuxa B4#32 A[31:0] 0#16 A[31:16] W[31:0] mux2
+Xmuxb B3#32 W[31:0] 0#8 W[31:8] X[31:0] mux2
+Xmuxc B2#32 X[31:0] 0#4 X[31:4] Y[31:0] mux2
+Xmuxd B1#32 Y[31:0] 0#2 Y[31:2] Z[31:0] mux2
+Xmuxe B0#32 Z[31:0] 0 Z[31:1] shift[31:0] mux2
+.ends
+
+.subckt SHA A[31:0] B[4:0] shift[31:0]
+Xmuxa B4#32 A[31:0] A[31]#16 A[31:16] W[31:0] mux2
+Xmuxb B3#32 W[31:0] W[31]#8 W[31:8] X[31:0] mux2
+Xmuxc B2#32 X[31:0] X[31]#4 X[31:4] Y[31:0] mux2
+Xmuxd B1#32 Y[31:0] Y[31]#2 Y[31:2] Z[31:0] mux2
+Xmuxe B0#32 Z[31:0] Z[31] Z[31:1] shift[31:0] mux2
+.ends
+
+
+.subckt shift32 ALUFN[1:0] A[31:0] B[4:0] shift[31:0]
+Xshiftleft A[31:0] B[4:0] left[31:0] SHL
+Xshiftright A[31:0] B[4:0] right[31:0] SHR
+XshiftrightA A[31:0] B[4:0] rightA[31:0] SHA
+Xselect ALUFN0#32 ALUFN1#32 left[31:0] right[31:0] 0#32 rightA[31:0] shift[31:0] mux4
+.ends
+
