@@ -1,5 +1,7 @@
 * Qiao Yingjie 1004514
 
+* MORE REFACTOR!
+
 .include "/Users/yingjieqiao/Desktop/term4/50002/nominal.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/stdcell.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_100ns.jsim"
@@ -16,6 +18,13 @@ Xg_2 nand_g g inverter
 .subckt deviceA_2 a b c s
 Xs_1 a b xor_ab xor2 
 Xs_2 xor_ab c s xor2
+.ends
+
+
+.subckt c16 pij ci gij c
+Xng gij gij_inv inverter
+Xpc pij ci pc nand2
+Xgpc pc gij_inv c nand2
 .ends
 
 
@@ -67,6 +76,7 @@ Xand4_4i K[3] K[2] K[1] K[0] z and4
 .ends
 
 
+
 .subckt adder32 ALUFN A[31:0] B[31:0] s[31:0] z v n
 * ALUFN[0] is c0
 * buffer_8?
@@ -77,21 +87,39 @@ XselB cb#32 B[31:0] IB[31:0] Bin[31:0] mux2
 
 
 * carey look ahead
-Xtop_layer A[31:0] XB[31:0] P[31:0] G[31:0] deivceA
+* .subckt deviceB gj1k pj1k gij pij cik pik gik cj1k c_lookahead
 
+Xtop_layer A[31:0] Bin[31:0] P[31:0] G[31:0] deivceA
+* right half
+Xlayer2_r G[15:1:2] P[15:1:2] G[14:0:2] P[14:0:2] C[14:0:2] P1[7:0] G1[7:0] C[15:1:2] C[14:0:2] deviceB
+Xlayer3_r G1[7:1:2] P1[7:1:2] G1[6:0:2] P1[6:0:2] C[12:0:4] P2[3:0] G2[3:0] C[14:2:4] C[12:0:4] deviceB
+Xlayer4_r G2[3:1:2] P2[3:1:2] G2[2:0:2] P2[2:0:2] C[8:0:8] P3[1:0] G3[1:0] C[12:4:8] C[8:0:8] deviceB
+Xlayer5_r G3[1] P3[1] G3[0] P3[0] cb P4[0] G4[0] C[8] C[0] deviceB
+Xreturn_r A[15:0] Bin[15:0] C[15:0] S[15:0] deviceA_2
 
+* left half
+Xc16 P[15] C[15] G[15] C[16] c16_cal
+Xlayer2_l G[31:17:2] P[31:17:2] G[30:16:2] P[30:16:2] Cc[30:16:2] P1[15:8] G1[15:8] Cc[31:17:2] Cc[30:16:2] deviceB
+Xlayer3_l G1[15:9:2] P1[15:9:2] G1[14:8:2] P1[14:8:2] Cc[28:16:4] P2[7:4] G2[7:4] Cc[30:18:4] Cc[28:16:4] deviceB
+Xlayer4_l G2[7:5:2] P2[7:5:2] G2[6:4:2] P2[6:4:2] Cc[24:16:8] P3[3:2] G3[3:2] Cc[28:20:8] Cc[24:16:8] deviceB
+Xlayer5_l G3[3] P3[3] G3[2] P3[2] vdd P4[1] G4[1] Cc[24] Cc[16] deviceB
+Xreturn_l A[31:16] Bin[31:16] Cc[31:16] Sc[31:16] deviceA_2
 
-Xxorgates B[31:0] ALUFN0#32 XB[31:0] xor2 
-Xfulladder_first A[0] XB[0] ALUFN[0] s[0] C[0] FA 
-Xfulladder_rest A[31:1] XB[31:1] c[30:0] s[31:1] c[31:1] FA 
+Xbuff_2 C[16] cb16 buffer
+Xlayer2_ll G[31:17:2] P[31:17:2] G[30:16:2] P[30:16:2] Cnc[30:16:2] P_1n[15:8] G_1n[15:8] Cnc[31:17:2] Cnc[30:16:2] deviceB
+Xlayer3_ll G_1n[15:9:2] P_1n[15:9:2] G_1n[14:8:2] P_1n[14:8:2] Cnc[28:16:4] P_2n[7:4] G_2n[7:4] Cnc[30:18:4] Cnc[28:16:4] deviceB
+Xlayer4_ll G_2n[7:5:2] P_2n[7:5:2] G_2n[6:4:2] P_2n[6:4:2] Cnc[24:16:8] P_3n[3:2] G_3n[3:2] Cnc[28:20:8] Cnc[24:16:8] deviceB
+Xlayer5_ll G_3n[3] P_3n[3] G_3n[2] P_3n[2] 0 P_4n[1] G_4n[1] Cnc[24] Cnc[16] deviceB
+Xreturn_ll A[31:16] Bin[31:16] Cnc[31:16] Snc[31:16] deviceA_2
+Xmuxcarry cb16#16 Snc[31:16] Sc[31:16] S[31:16]  mux2
 
 ** returns z
-XfindZ s[31:0] z findZ 
+XfindZ S[31:0] z findZ 
 
 ** returns V
-XfindV A[31:0] XB[31:0] s[31:0] v findV 
+XfindV A[31:0] Bin[31:0] S[31:0] v findV 
 
 ** returns n
-.connect s[31] n 
+.connect S[31] n 
 
 .ends
