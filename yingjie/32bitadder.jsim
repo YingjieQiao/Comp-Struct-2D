@@ -1,13 +1,11 @@
 * Qiao Yingjie 1004514
 
-* MORE REFACTOR!
-
 .include "/Users/yingjieqiao/Desktop/term4/50002/nominal.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/stdcell.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_100ns.jsim"
 
 
-.subckt deivceA a b p g
+.subckt boxA a b p g
 Xp_1 a b nor_p nor2
 Xp_2 nor_p p inverter
 Xg_1 a b nand_g nand2
@@ -28,26 +26,29 @@ Xgpc pc gij_inv c nand2
 .ends
 
 
-.subckt deviceB gj1k pj1k gij pij cik pik gik cj1k c_lookahead
+.subckt boxB gj1k pj1k gij pij cik pik gik cj1k c_lookahead
 * see the diagram on the handout
 * outputs: gik, pik, cj1k, c_lookahead
-
-* output gik
-Xgik_1 gj1k gj1k_inv inverter
-Xgik_1 pj1k gij pg nand2
-Xgik_inv pg gj1k_inv gik nand2
-
-* output pik
-Xpik_nand pj1k pij pik_inv nand2
-Xpik_inv pik_inv pik inverter
 
 * output cj1k = g + p * cin
 Xng gij gij_inv inverter
 Xpc pij cik pcin nand2
 Xgpc pcin gij_inv cj1k nand2
 
+* output gik
+Xgik_1 gj1k gj1k_inv inverter
+Xgik_2 pj1k gij pg nand2
+Xgik_inv pg gj1k_inv gik nand2
+
+* output pik
+Xpik_nand pj1k pij pik_inv nand2
+Xpik_inv pik_inv pik inverter
+
+
+
 .connect cik c_lookahead
 .ends
+
 
 
 .subckt FA a b cin s co
@@ -77,47 +78,22 @@ Xand4_4i K[3] K[2] K[1] K[0] z and4
 
 
 
-.subckt adder32 ALUFN A[31:0] B[31:0] s[31:0] z v n
-* ALUFN[0] is c0
-* buffer_8?
-Xbuf_1 ALUFN cb buffer
-* subtraction
-XinvertB B[31:0] IB[31:0] inverter_2
-XselB cb#32 B[31:0] IB[31:0] Bin[31:0] mux2
+.subckt adder32 op0 A[31:0] B[31:0] s[31:0] z v n
+Xxor B[31:0] op0#32 XB[31:0] xor2
 
-
-* carey look ahead
-* .subckt deviceB gj1k pj1k gij pij cik pik gik cj1k c_lookahead
-
-Xtop_layer A[31:0] Bin[31:0] P[31:0] G[31:0] deivceA
-* right half
-Xlayer2_r G[15:1:2] P[15:1:2] G[14:0:2] P[14:0:2] C[14:0:2] P1[7:0] G1[7:0] C[15:1:2] C[14:0:2] deviceB
-Xlayer3_r G1[7:1:2] P1[7:1:2] G1[6:0:2] P1[6:0:2] C[12:0:4] P2[3:0] G2[3:0] C[14:2:4] C[12:0:4] deviceB
-Xlayer4_r G2[3:1:2] P2[3:1:2] G2[2:0:2] P2[2:0:2] C[8:0:8] P3[1:0] G3[1:0] C[12:4:8] C[8:0:8] deviceB
-Xlayer5_r G3[1] P3[1] G3[0] P3[0] cb P4[0] G4[0] C[8] C[0] deviceB
-Xreturn_r A[15:0] Bin[15:0] C[15:0] S[15:0] deviceA_2
-
-* left half
-Xc16 P[15] C[15] G[15] C[16] c16_cal
-Xlayer2_l G[31:17:2] P[31:17:2] G[30:16:2] P[30:16:2] Cc[30:16:2] P1[15:8] G1[15:8] Cc[31:17:2] Cc[30:16:2] deviceB
-Xlayer3_l G1[15:9:2] P1[15:9:2] G1[14:8:2] P1[14:8:2] Cc[28:16:4] P2[7:4] G2[7:4] Cc[30:18:4] Cc[28:16:4] deviceB
-Xlayer4_l G2[7:5:2] P2[7:5:2] G2[6:4:2] P2[6:4:2] Cc[24:16:8] P3[3:2] G3[3:2] Cc[28:20:8] Cc[24:16:8] deviceB
-Xlayer5_l G3[3] P3[3] G3[2] P3[2] vdd P4[1] G4[1] Cc[24] Cc[16] deviceB
-Xreturn_l A[31:16] Bin[31:16] Cc[31:16] Sc[31:16] deviceA_2
-
-Xbuff_2 C[16] cb16 buffer
-Xlayer2_ll G[31:17:2] P[31:17:2] G[30:16:2] P[30:16:2] Cnc[30:16:2] P_1n[15:8] G_1n[15:8] Cnc[31:17:2] Cnc[30:16:2] deviceB
-Xlayer3_ll G_1n[15:9:2] P_1n[15:9:2] G_1n[14:8:2] P_1n[14:8:2] Cnc[28:16:4] P_2n[7:4] G_2n[7:4] Cnc[30:18:4] Cnc[28:16:4] deviceB
-Xlayer4_ll G_2n[7:5:2] P_2n[7:5:2] G_2n[6:4:2] P_2n[6:4:2] Cnc[24:16:8] P_3n[3:2] G_3n[3:2] Cnc[28:20:8] Cnc[24:16:8] deviceB
-Xlayer5_ll G_3n[3] P_3n[3] G_3n[2] P_3n[2] 0 P_4n[1] G_4n[1] Cnc[24] Cnc[16] deviceB
-Xreturn_ll A[31:16] Bin[31:16] Cnc[31:16] Snc[31:16] deviceA_2
-Xmuxcarry cb16#16 Snc[31:16] Sc[31:16] S[31:16]  mux2
+Xlayer0 A[31:0] XB[31:0] C_0[31:0] S[31:0] G_0[31:0] P_0[31:0] boxA
+Xlayer1 G_0[31:1:2] G_0[30:0:2] P_0[31:1:2] P_0[30:0:2] C_1[15:0] G_1[15:0] P_1[15:0] C_0[31:1:2] C_0[30:0:2] boxB
+Xlayer2 G_1[15:1:2] G_1[14:0:2] P_1[15:1:2] P_1[14:0:2] C_2[7:0] G_2[7:0] P_2[7:0] C_1[15:1:2] C_1[14:0:2] boxB
+Xlayer3 G_2[7:1:2] G_2[6:0:2] P_2[7:1:2] P_2[6:0:2] C_3[3:0] G_3[3:0] P_3[3:0] C_2[7:1:2] C_2[6:0:2] boxB
+Xlayer4 G_3[3:1:2] G_3[2:0:2] P_3[3:1:2] P_3[2:0:2] C_4[1:0] G_4[1:0] P_4[1:0] C_3[3:1:2] C_3[2:0:2] boxB
+Xlayer5 G_4[1] G_4[0] P_4[1] P_4[0] C_5 G_5 P_5 C_4[1] C_4[0] boxB
+Xbuffer op0 C_5 buffer_8
 
 ** returns z
 XfindZ S[31:0] z findZ 
 
 ** returns V
-XfindV A[31:0] Bin[31:0] S[31:0] v findV 
+XfindV A[31:0] XB[31:0] S[31:0] v findV 
 
 ** returns n
 .connect S[31] n 
