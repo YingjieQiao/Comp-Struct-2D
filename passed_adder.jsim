@@ -1,0 +1,83 @@
+.include "nominal.jsim"
+.include "stdcell.jsim"
+.include "2dcheckoff_3ns.jsim"
+
+.subckt knex a b
+.connect a b
+.ends
+
+.subckt FA a b cin s co
+Xxor1 a b ab1 xor2
+Xxor2 ab1 cin s xor2
+Xannd1 cin ab1 abc1 nand2
+Xnand2 a b ab2 nand2
+Xnand3 abc1 ab2 co nand2
+.ends
+
+.subckt xor a b out
+Xnand1 a b mid nand2
+Xnand2 a mid right1 nand2
+Xnand3 b mid right2 nand2
+Xnand4 right2 right1 out nand2
+.ends
+.subckt and a b out
+Xnand a b ab nand2
+Xinv ab out inverter
+.ends
+.subckt or a b out
+Xnor a b ab nor2
+Xinv ab out inverter
+.ends
+
+.subckt AorBandC A B C output
+Xinv A nA inverter
+Xnand1 B C BNandC nand2
+Xnand2 BNandC nA output nand2 
+.ends
+
+.subckt boxB G2 G1 P2 P1 Cin Gout Pout Cout_1 Cout_2
+//for pg
+Xpoutand P1 P2 Pout and
+Xgout G2 P2 G1 Gout AorBandC
+//for c
+Xcout G1 P1 Cin Cout_1 AorBandC
+.connect Cin Cout_2
+.ends
+
+.subckt boxA a b c s g p
+Xxor1 a b ab xor2
+Xxor2 ab c s xor2
+Xor a b p or
+Xand a b g and
+.ends
+
+.subckt nor32 x[31:0] output
+Xnor1 x[7:0] x[15:8] x[23:16] x[31:24] sig_1[7:0] nor4
+Xnand1 sig_1[1:0] sig_1[3:2] sig_1[5:4] sig_1[7:6] sig_2[1:0] nand4
+Xnor2 sig_2[1] sig_2[0] output nor2
+.ends
+
+.subckt vcal XA[31] XB[31] S[31] V
+Xinv1 XA[31] NA[31] inverter
+Xinv2 XB[31] NB[31] inverter
+Xinv3 S[31] NS[31] inverter
+Xnand1 XA[31] XB[31] NS[31] sig_1 nand3
+Xnand2 NA[31] NB[31] S[31] sig_2 nand3
+Xnand3 sig_1 sig_2 V nand2
+.ends
+
+//layer 0:32, 1:16, 2:8, 3:4, 4:2, 5:1
+.subckt adder32 op0 A[31:0] B[31:0] S[31:0] z v n
+Xxor B[31:0] op0#32 XB[31:0] xor2
+Xconnect A[31:0] XA[31:0] knex
+Xlayer0 XA[31:0] XB[31:0] C_0[31:0] S[31:0] G_0[31:0] P_0[31:0] boxA
+Xlayer1 G_0[31:1:2] G_0[30:0:2] P_0[31:1:2] P_0[30:0:2] C_1[15:0] G_1[15:0] P_1[15:0] C_0[31:1:2] C_0[30:0:2] boxB
+Xlayer2 G_1[15:1:2] G_1[14:0:2] P_1[15:1:2] P_1[14:0:2] C_2[7:0] G_2[7:0] P_2[7:0] C_1[15:1:2] C_1[14:0:2] boxB
+Xlayer3 G_2[7:1:2] G_2[6:0:2] P_2[7:1:2] P_2[6:0:2] C_3[3:0] G_3[3:0] P_3[3:0] C_2[7:1:2] C_2[6:0:2] boxB
+Xlayer4 G_3[3:1:2] G_3[2:0:2] P_3[3:1:2] P_3[2:0:2] C_4[1:0] G_4[1:0] P_4[1:0] C_3[3:1:2] C_3[2:0:2] boxB
+Xlayer5 G_4[1] G_4[0] P_4[1] P_4[0] C_5 G_5 P_5 C_4[1] C_4[0] boxB
+Xbuffer op0 C_5 buffer_8
+.connect S[31] n
+Xnor S[31:0] z nor32
+Xv XA[31] XB[31] S[31] v vcal
+.ends
