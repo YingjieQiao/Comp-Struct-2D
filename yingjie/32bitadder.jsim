@@ -2,7 +2,43 @@
 
 .include "/Users/yingjieqiao/Desktop/term4/50002/nominal.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/stdcell.jsim"
-.include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_3ns.jsim"
+.include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_100ns.jsim"
+
+
+.subckt deivceA a b p g
+Xp_1 a b nor_p nor2
+Xp_2 nor_p p inverter
+Xg_1 a b nand_g nand2
+Xg_2 nand_g g inverter
+.ends
+
+
+.subckt deviceA_2 a b c s
+Xs_1 a b xor_ab xor2 
+Xs_2 xor_ab c s xor2
+.ends
+
+
+.subckt deviceB gj1k pj1k gij pij cik pik gik cj1k c_lookahead
+* see the diagram on the handout
+* outputs: gik, pik, cj1k, c_lookahead
+
+* output gik
+Xgik_1 gj1k gj1k_inv inverter
+Xgik_1 pj1k gij pg nand2
+Xgik_inv pg gj1k_inv gik nand2
+
+* output pik
+Xpik_nand pj1k pij pik_inv nand2
+Xpik_inv pik_inv pik inverter
+
+* output cj1k = g + p * cin
+Xng gij gij_inv inverter
+Xpc pij cik pcin nand2
+Xgpc pcin gij_inv cj1k nand2
+
+.connect cik c_lookahead
+.ends
 
 
 .subckt FA a b cin s co
@@ -31,7 +67,20 @@ Xand4_4i K[3] K[2] K[1] K[0] z and4
 .ends
 
 
-.subckt adder32 ALUFN[0] A[31:0] B[31:0] s[31:0] z v n
+.subckt adder32 ALUFN A[31:0] B[31:0] s[31:0] z v n
+* ALUFN[0] is c0
+* buffer_8?
+Xbuf_1 ALUFN cb buffer
+* subtraction
+XinvertB B[31:0] IB[31:0] inverter_2
+XselB cb#32 B[31:0] IB[31:0] Bin[31:0] mux2
+
+
+* carey look ahead
+Xtop_layer A[31:0] XB[31:0] P[31:0] G[31:0] deivceA
+
+
+
 Xxorgates B[31:0] ALUFN0#32 XB[31:0] xor2 
 Xfulladder_first A[0] XB[0] ALUFN[0] s[0] C[0] FA 
 Xfulladder_rest A[31:1] XB[31:1] c[30:0] s[31:1] c[31:1] FA 
