@@ -2,15 +2,15 @@
 
 .include "/Users/yingjieqiao/Desktop/term4/50002/nominal.jsim"
 .include "/Users/yingjieqiao/Desktop/term4/50002/stdcell.jsim"
-.include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_100ns.jsim"
+.include "/Users/yingjieqiao/Desktop/term4/50002/2dcheckoff_3ns.jsim"
 
 
 .subckt FA a b cin s co
 Xxor1 a b ab1 xor2
 Xxor2 ab1 cin s xor2
-Xand1 cin ab1 abc1 and2
-Xand2 a b ab2 and2
-Xor abc1 ab2 co or2
+Xannd1 cin ab1 abc1 nand2
+Xnand2 a b ab2 nand2
+Xnand3 abc1 ab2 co nand2
 .ends
 
 
