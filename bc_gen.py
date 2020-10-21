@@ -1,45 +1,7 @@
 # Frustrated
 def main(file_handler):
-    """
-    Ripple Carry 32 bit adder
-
-    bit1
-    B0 := ODD(b0,ALUFN0);
-    S0 := ODD(A0,B0,ALUFN0);
-    C0 := OR(AND(A0,B0),AND(ALUFN0,A0),AND(ALUFN0,B0));
-
-    bit2
-    B1 := ODD(b1,ALUFN0);
-    S1 := ODD(A1,B1,C0);
-    C1 := OR(AND(A1,B1),AND(C0,A1),AND(C0,A1));
-
-    bit3
-    B2 := ODD(b2,ALUFN0);
-    S2 := ODD(A2,B2,C0);
-    C2 := OR(AND(A2,B2),AND(C1,A2),AND(C1,A2));
-
-    ...
-
-    bit 32
-    B31 := ODD(b31,ALUFN0);
-    S31 := ODD(A31,B31,C0);
-    C31 := OR(AND(A2,B2),AND(C1,A2),AND(C1,A2));
-    """
-
     # file header
     file_handler.write("BC1.1\n")
-
-    # the first bit
-    file_handler.write('B0 := ODD(b0,ALUFN0);\n')
-    file_handler.write('S0 := ODD(A0,B0,ALUFN0);\n')
-    file_handler.write('C1 := OR(AND(A0,B0),AND(ALUFN0,A0),AND(ALUFN0,B0));\n')
-    file_handler.write('\n')
-
-    for i in range(1, 32):
-        bx = "B{0} := ODD(b{0},ALUFN0);\n".format(i)
-        sx = "S{0} := ODD(A{0},B{0},C{1});\n".format(i, i)
-        coutx = "C{1} := OR(AND(A{0},B{0}),AND(C{0},A{0}),AND(C{0},B{0}));\n".format(i, i + 1)
-        file_handler.write(bx + sx + coutx + '\n')
 
     """
     carry lookahead 32 bit adder
@@ -98,7 +60,7 @@ def main(file_handler):
     
     P5_0 := NOT(NOT(AND(P4_0,P4_1)));
     G5_0 := NOT(AND(NOT(G4_1),NOT(AND(G4_0,P4_1))));
-    C_lookahead_16 := NOT(AND(NOT(G4_0), NOT(AND(P4_0,OP0))));
+    C_lookahead_16 := NOT(AND(NOT(G4_0), NOT(AND(P4_0,ALUFN0))));
     """
 
     count = 32
@@ -129,9 +91,48 @@ def main(file_handler):
         count //= 2
         index += 1
 
-    file_handler.write('C_lookahead_0 := (OP0);\n')
+    file_handler.write('C_lookahead_0 := (ALUFN0);\n')
     file_handler.write('Z := ODD(S31, S_lookahead_31);\n')
     file_handler.write('ASSIGN Z;')
+
+    """
+        Ripple Carry 32 bit adder
+
+        bit1
+        B0 := ODD(b0,ALUFN0);
+        S0 := ODD(A0,B0,ALUFN0);
+        C0 := OR(AND(A0,B0),AND(ALUFN0,A0),AND(ALUFN0,B0));
+
+        bit2
+        B1 := ODD(b1,ALUFN0);
+        S1 := ODD(A1,B1,C0);
+        C1 := OR(AND(A1,B1),AND(C0,A1),AND(C0,A1));
+
+        bit3
+        B2 := ODD(b2,ALUFN0);
+        S2 := ODD(A2,B2,C0);
+        C2 := OR(AND(A2,B2),AND(C1,A2),AND(C1,A2));
+
+        ...
+
+        bit 32
+        B31 := ODD(b31,ALUFN0);
+        S31 := ODD(A31,B31,C0);
+        C31 := OR(AND(A2,B2),AND(C1,A2),AND(C1,A2));
+        """
+
+    # the first bit
+    file_handler.write('B0 := ODD(b0,ALUFN0);\n')
+    file_handler.write('S0 := ODD(A0,B0,ALUFN0);\n')
+    file_handler.write('C1 := OR(AND(A0,B0),AND(ALUFN0,A0),AND(ALUFN0,B0));\n')
+    file_handler.write('\n')
+
+    for i in range(1, 32):
+        bx = "B{0} := ODD(b{0},ALUFN0);\n".format(i)
+        sx = "S{0} := ODD(A{0},B{0},C{1});\n".format(i, i)
+        coutx = "C{1} := OR(AND(A{0},B{0}),AND(C{0},A{0}),AND(C{0},B{0}));\n".format(i, i + 1)
+        file_handler.write(bx + sx + coutx + '\n')
+
     print("done")
 
 
