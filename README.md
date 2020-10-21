@@ -22,16 +22,16 @@ The idea is adapated from the 50.002 2D handout.
 Console Output
 Parsing from /home/administrator/WebBC2CNF/files/adder32bit_1004514.bc
 Using file format version 1.1
-The circuit has 918 gates
-The circuit has 886 gates and 1328 edges after sharing
-The circuit has 793 gates after CNF normalization
-The circuit has 761 gates and 1203 edges after sharing
+The circuit has 950 gates
+The circuit has 918 gates and 1361 edges after sharing
+The circuit has 792 gates after CNF normalization
+The circuit has 758 gates and 1199 edges after sharing
 The max-min height of the circuit is 8
-The max-max height of the circuit is 65
-The circuit has 761 relevant gates
-The circuit has 66 relevant input gates
+The max-max height of the circuit is 66
+The circuit has 758 relevant gates
+The circuit has 65 relevant input gates
 Computing cnf size... done
-The cnf has 542 variables and 1622 clauses
+The cnf has 539 variables and 1614 clauses
 Printing the CNF formula...
 Done
 ```
