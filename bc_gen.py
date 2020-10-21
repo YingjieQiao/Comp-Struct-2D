@@ -108,7 +108,7 @@ def main(file_handler):
             for boxA in range(count):
                 px_x = "P{0}_{1} := NOT(NOT(OR(A{1},B{1})));\n".format(index, boxA)
                 gx_x = "G{0}_{1} := NOT(NOT(AND(A{1},B{1})));\n".format(index, boxA)
-                new_sx = "S_lookahead_{0} := ODD(A{0},B{0},C_optimized{0});\n".format(boxA)
+                new_sx = "S_lookahead_{0} := ODD(A{0},B{0},C_lookahead_{0});\n".format(boxA)
                 file_handler.write(px_x)
                 file_handler.write(gx_x)
                 file_handler.write(new_sx)
@@ -121,7 +121,7 @@ def main(file_handler):
                                                                                                 boxB * 2,
                                                                                                 boxB * 2 + 1)
                 new_coutx = 'C_lookahead_{2} := NOT(AND(NOT(G{0}_{3}), NOT(AND(P{0}_{3},C_lookahead_{1}))));\n'.format(
-                    index - 1, boxB * (2 ** index), boxB * (2 ** index) + 1, boxB * 2)
+                    index - 1, boxB * (2 ** index), boxB * (2 ** index) + (2 ** (index - 1)), boxB * 2)
                 file_handler.write(px_x)
                 file_handler.write(gx_x)
                 file_handler.write(new_coutx)
