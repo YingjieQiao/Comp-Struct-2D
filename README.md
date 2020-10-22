@@ -42,6 +42,6 @@ At `./CS2D/`, run `java -jar findsolssat/findsolssat.jar lookahead.cnf`
 
 Expected: `Unsat : true`
 
-![Terminal Output](https://github.com/YingjieQiao/Comp-Struct-2D/blob/yingjie/out.jpg?raw=true)
+![Terminal Output](https://github.com/jzhang38/Comp-Struct-2D/blob/yingjie/assets/out.png)
 
 
