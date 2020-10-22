@@ -14,7 +14,7 @@ The rule of thumb is that don't push code to master branch directly.
 
 # Optimized carry-lookahead 32 bit adder
 
-The idea is adapated from the 50.002 2D handout.
+The idea is adapated from the 50.002 2D handout. See the diagram in the handout.
 
 # CNF file generation output
 
@@ -35,4 +35,13 @@ The cnf has 539 variables and 1614 clauses
 Printing the CNF formula...
 Done
 ```
+
+# Test CNF UNSAT
+
+At `./CS2D/`, run `java -jar findsolssat/findsolssat.jar lookahead.cnf`
+
+Expected: `Unsat : true`
+
+![Terminal Output](https://github.com/YingjieQiao/Comp-Struct-2D/blob/yingjie/out.jpg?raw=true)
+
 
