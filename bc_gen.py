@@ -68,8 +68,8 @@ def main(file_handler):
     while count:
         if count == 32:
             for boxA in range(count):
-                px_x = "P{0}_{1} := NOT(NOT(OR(A{1},B{1})));\n".format(index, boxA)
-                gx_x = "G{0}_{1} := NOT(NOT(AND(A{1},B{1})));\n".format(index, boxA)
+                px_x = "P{0}_{1} := OR(A{1},B{1});\n".format(index, boxA)
+                gx_x = "G{0}_{1} := AND(A{1},B{1});\n".format(index, boxA)
                 new_sx = "S_lookahead_{0} := ODD(A{0},B{0},C_lookahead_{0});\n".format(boxA)
                 file_handler.write(px_x)
                 file_handler.write(gx_x)
@@ -77,7 +77,7 @@ def main(file_handler):
                 file_handler.write('\n')
         else:
             for boxB in range(count):
-                px_x = 'P{0}_{2} := NOT(NOT(AND(P{1}_{3},P{1}_{4})));\n'.format(index, index - 1, boxB, boxB * 2,
+                px_x = 'P{0}_{2} := AND(P{1}_{3},P{1}_{4});\n'.format(index, index - 1, boxB, boxB * 2,
                                                                                boxB * 2 + 1)
                 gx_x = 'G{0}_{2} := NOT(AND(NOT(G{1}_{4}),NOT(AND(G{1}_{3},P{1}_{4}))));\n'.format(index, index - 1, boxB,
                                                                                                 boxB * 2,
@@ -93,7 +93,7 @@ def main(file_handler):
 
     file_handler.write('C_lookahead_0 := (ALUFN0);\n')
     file_handler.write('Z := ODD(S31, S_lookahead_31);\n')
-    file_handler.write('ASSIGN Z;')
+    file_handler.write('ASSIGN Z;\n')
 
     """
         Ripple Carry 32 bit adder
